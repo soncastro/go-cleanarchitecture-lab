@@ -3,7 +3,7 @@ package database
 import (
 	"database/sql"
 
-	"github.com/devfullcycle/20-CleanArch/internal/entity"
+	"github.com/songomes/desafiocleanarchitecture/internal/entity"
 )
 
 type OrderRepository struct {
