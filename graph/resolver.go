@@ -7,5 +7,6 @@ import "github.com/songomes/desafiocleanarchitecture/internal/usecase"
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	CreateOrderUseCase usecase.CreateOrderUseCase
+	CreateOrderUseCase  usecase.CreateOrderUseCase
+	GetAllOrdersUseCase usecase.GetAllOrdersUseCase
 }

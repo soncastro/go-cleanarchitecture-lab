@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"github.com/songomes/desafiocleanarchitecture/graph/model"
 
 	"github.com/songomes/desafiocleanarchitecture/internal/entity"
 )
@@ -33,4 +34,23 @@ func (r *OrderRepository) GetTotal() (int, error) {
 		return 0, err
 	}
 	return total, nil
+}
+
+func (r *OrderRepository) GetAllOrders() ([]*model.Order, error) {
+	rows, err := r.Db.Query("SELECT id, price, tax, final_price FROM orders ORDER BY id DESC")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var orders []*model.Order
+	for rows.Next() {
+		var order model.Order
+		if err := rows.Scan(&order.ID, &order.Price, &order.Tax, &order.FinalPrice); err != nil {
+			return nil, err
+		}
+		orders = append(orders, &order)
+	}
+
+	return orders, nil
 }

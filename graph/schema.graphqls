@@ -2,6 +2,11 @@
 #
 # https://gqlgen.com/getting-started/
 
+type Query {
+  getAllOrders: [Order!]!
+  todos: [Todo!]!
+}
+
 type Order {
   id: String!
   Price: Float!
@@ -25,10 +30,6 @@ type Todo {
 type User {
   id: ID!
   name: String!
-}
-
-type Query {
-  todos: [Todo!]!
 }
 
 input NewTodo {
