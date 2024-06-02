@@ -13,20 +13,20 @@ type OrderListOutputDTO struct {
 }
 
 type GetAllOrdersUseCase struct {
-	OrderRepository entity.OrderRepositoryInterface
-	OrderCreated    events.EventInterface
-	EventDispatcher events.EventDispatcherInterface
+	OrderRepository     entity.OrderRepositoryInterface
+	GetAllOrdersFetched events.EventInterface
+	EventDispatcher     events.EventDispatcherInterface
 }
 
 func NewGetAllOrdersUseCase(
 	OrderRepository entity.OrderRepositoryInterface,
-	OrderCreated events.EventInterface,
+	GetAllOrdersFetched events.EventInterface,
 	EventDispatcher events.EventDispatcherInterface,
 ) *GetAllOrdersUseCase {
 	return &GetAllOrdersUseCase{
-		OrderRepository: OrderRepository,
-		OrderCreated:    OrderCreated,
-		EventDispatcher: EventDispatcher,
+		OrderRepository:     OrderRepository,
+		GetAllOrdersFetched: GetAllOrdersFetched,
+		EventDispatcher:     EventDispatcher,
 	}
 }
 
@@ -45,6 +45,9 @@ func (c *GetAllOrdersUseCase) Execute() ([]OrderListOutputDTO, error) {
 			FinalPrice: order.FinalPrice,
 		})
 	}
+
+	c.GetAllOrdersFetched.SetPayload(dto)
+	c.EventDispatcher.Dispatch(c.GetAllOrdersFetched)
 
 	return dto, nil
 }

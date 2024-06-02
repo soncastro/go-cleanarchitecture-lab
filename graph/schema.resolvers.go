@@ -7,28 +7,14 @@ package graph
 import (
 	"context"
 	"fmt"
-	"github.com/songomes/desafiocleanarchitecture/internal/usecase"
 
 	"github.com/songomes/desafiocleanarchitecture/graph/model"
+	"github.com/songomes/desafiocleanarchitecture/internal/usecase"
 )
 
-func (r *queryResolver) ListOrder(ctx context.Context) ([]*model.Order, error) {
-	orders, err := r.GetAllOrdersUseCase.Execute()
-	if err != nil {
-		return nil, err
-	}
-
-	var result []*model.Order
-	for _, order := range orders {
-		result = append(result, &model.Order{
-			ID:         order.ID,
-			Price:      order.Price,
-			Tax:        order.Tax,
-			FinalPrice: order.FinalPrice,
-		})
-	}
-
-	return result, nil
+// CreateTodo is the resolver for the createTodo field.
+func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
+	panic(fmt.Errorf("not implemented: CreateTodo - createTodo"))
 }
 
 // CreateOrder is the resolver for the createOrder field.
@@ -50,6 +36,26 @@ func (r *mutationResolver) CreateOrder(ctx context.Context, input *model.OrderIn
 	}, nil
 }
 
+// GetAllOrders is the resolver for the getAllOrders field.
+func (r *queryResolver) GetAllOrders(ctx context.Context) ([]*model.Order, error) {
+	orders, err := r.GetAllOrdersUseCase.Execute()
+	if err != nil {
+		return nil, err
+	}
+
+	var result []*model.Order
+	for _, order := range orders {
+		result = append(result, &model.Order{
+			ID:         order.ID,
+			Price:      order.Price,
+			Tax:        order.Tax,
+			FinalPrice: order.FinalPrice,
+		})
+	}
+
+	return result, nil
+}
+
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 	panic(fmt.Errorf("not implemented: Todos - todos"))
@@ -60,11 +66,6 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
-
-// CreateTodo is the resolver for the createTodo field.
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: CreateTodo - createTodo"))
-}
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

@@ -1,5 +1,5 @@
 mutation crateOrder {
-    createOrder( input: { id:"oi", Price:1, Tax:2} ) {
+    createOrder( input: { id:"a", Price:1, Tax:2} ) {
         id
         Price
         Tax
