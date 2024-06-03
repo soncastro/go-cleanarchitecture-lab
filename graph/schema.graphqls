@@ -3,7 +3,7 @@
 # https://gqlgen.com/getting-started/
 
 type Query {
-  getAllOrders: [Order!]!
+  ListOrders: [Order!]!
   todos: [Todo!]!
 }
 

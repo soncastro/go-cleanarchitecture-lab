@@ -1,4 +1,4 @@
-mutation crateOrder {
+mutation createOrder {
     createOrder( input: { id:"a", Price:1, Tax:2} ) {
         id
         Price

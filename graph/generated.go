@@ -60,8 +60,8 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		GetAllOrders func(childComplexity int) int
-		Todos        func(childComplexity int) int
+		ListOrders func(childComplexity int) int
+		Todos      func(childComplexity int) int
 	}
 
 	Todo struct {
@@ -82,7 +82,7 @@ type MutationResolver interface {
 	CreateOrder(ctx context.Context, input *model.OrderInput) (*model.Order, error)
 }
 type QueryResolver interface {
-	GetAllOrders(ctx context.Context) ([]*model.Order, error)
+	ListOrders(ctx context.Context) ([]*model.Order, error)
 	Todos(ctx context.Context) ([]*model.Todo, error)
 }
 
@@ -157,12 +157,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Order.Tax(childComplexity), true
 
-	case "Query.getAllOrders":
-		if e.complexity.Query.GetAllOrders == nil {
+	case "Query.ListOrders":
+		if e.complexity.Query.ListOrders == nil {
 			break
 		}
 
-		return e.complexity.Query.GetAllOrders(childComplexity), true
+		return e.complexity.Query.ListOrders(childComplexity), true
 
 	case "Query.todos":
 		if e.complexity.Query.Todos == nil {
@@ -725,8 +725,8 @@ func (ec *executionContext) fieldContext_Order_FinalPrice(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_getAllOrders(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_getAllOrders(ctx, field)
+func (ec *executionContext) _Query_ListOrders(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_ListOrders(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -739,7 +739,7 @@ func (ec *executionContext) _Query_getAllOrders(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetAllOrders(rctx)
+		return ec.resolvers.Query().ListOrders(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -756,7 +756,7 @@ func (ec *executionContext) _Query_getAllOrders(ctx context.Context, field graph
 	return ec.marshalNOrder2ᚕᚖgithubᚗcomᚋsongomesᚋdesafiocleanarchitectureᚋgraphᚋmodelᚐOrderᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_getAllOrders(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_ListOrders(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -3214,7 +3214,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "getAllOrders":
+		case "ListOrders":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -3223,7 +3223,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_getAllOrders(ctx, field)
+				res = ec._Query_ListOrders(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

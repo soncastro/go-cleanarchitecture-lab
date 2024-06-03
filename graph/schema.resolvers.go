@@ -7,9 +7,9 @@ package graph
 import (
 	"context"
 	"fmt"
+	"github.com/songomes/desafiocleanarchitecture/internal/usecase"
 
 	"github.com/songomes/desafiocleanarchitecture/graph/model"
-	"github.com/songomes/desafiocleanarchitecture/internal/usecase"
 )
 
 // CreateTodo is the resolver for the createTodo field.
@@ -36,8 +36,8 @@ func (r *mutationResolver) CreateOrder(ctx context.Context, input *model.OrderIn
 	}, nil
 }
 
-// GetAllOrders is the resolver for the getAllOrders field.
-func (r *queryResolver) GetAllOrders(ctx context.Context) ([]*model.Order, error) {
+// ListOrders is the resolver for the ListOrders field.
+func (r *queryResolver) ListOrders(ctx context.Context) ([]*model.Order, error) {
 	orders, err := r.GetAllOrdersUseCase.Execute()
 	if err != nil {
 		return nil, err
