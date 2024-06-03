@@ -4,9 +4,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net"
 	"net/http"
+	"os"
 	"strconv"
+	"time"
 
 	graphql_handler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -36,11 +39,18 @@ func main() {
 		panic(err)
 	}
 
-	db, err := sql.Open(configs.DBDriver, fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", configs.DBUser, configs.DBPassword, configs.DBHost, configs.DBPort, configs.DBName))
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
+	//db, err := sql.Open(configs.DBDriver, fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", configs.DBUser, configs.DBPassword, configs.DBHost, configs.DBPort, configs.DBName))
+	//fmt.Println("conectado ao mysql...")
+	//dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", "root", "", "localhost", "3306", "orders")
+	//db, err := sql.Open("mysql", dsn)
+	//if err != nil {
+	//	fmt.Println("erro com o mysql!")
+	//	panic(err)
+	//}
+	//fmt.Println("conexao com mysql foi bem sucedida!")
+	//defer db.Close()
+
+	db := waitForMySQLConnection(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", "root", "root", "localhost", "3306", "orders"))
 
 	rabbitMQChannel := getRabbitMQChannel()
 
@@ -132,5 +142,28 @@ func (h *HandlerMain) ListOrdersREST(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(ordersResponse); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+}
+
+func waitForMySQLConnection(dsn string) *sql.DB {
+	var db *sql.DB
+	var err error
+
+	for {
+		db, err = sql.Open("mysql", dsn)
+		if err == nil {
+			err = db.Ping()
+			if err == nil {
+				log.SetOutput(os.Stdout)
+				log.Println("Successfully connected to MySQL")
+				fmt.Println("Successfully connected to MySQL")
+				return db
+			}
+		}
+
+		log.SetOutput(os.Stderr)
+		log.Println("Failed to connect to MySQL, retrying in 5 seconds...")
+		fmt.Println("Failed to connect to MySQL, retrying in 5 seconds...")
+		time.Sleep(5 * time.Second)
 	}
 }
