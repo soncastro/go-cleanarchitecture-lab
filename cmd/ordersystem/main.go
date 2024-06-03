@@ -62,7 +62,8 @@ func main() {
 	if count == 0 {
 		_, err = db.Exec(`INSERT INTO orders (id, price, tax, final_price) VALUES
 			('1', 100.0, 10.0, 110.0),
-			('2', 200.0, 20.0, 220.0)`)
+			('2', 200.0, 20.0, 220.0),
+			('3', 300.0, 30.0, 321.0)`)
 		if err != nil {
 			panic(err)
 		}
