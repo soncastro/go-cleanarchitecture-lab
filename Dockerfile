@@ -18,10 +18,6 @@ COPY vendor/ ./vendor/
 # Copy the source from the current directory to the Working Directory inside the container
 COPY . .
 
-# Add wait-for-it.sh script
-COPY wait-for-it.sh /wait-for-it.sh
-RUN chmod +x /wait-for-it.sh
-
 # Set the Current Working Directory inside the container to cmd/ordersystem
 WORKDIR /app/cmd/ordersystem
 

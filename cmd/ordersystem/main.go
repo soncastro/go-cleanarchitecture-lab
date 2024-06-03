@@ -19,6 +19,7 @@ import (
 	"google.golang.org/grpc/reflection"
 	"net"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 )
@@ -34,19 +35,39 @@ func main() {
 		panic(err)
 	}
 
-	//db, err := sql.Open(configs.DBDriver, fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", configs.DBUser, configs.DBPassword, configs.DBHost, configs.DBPort, configs.DBName))
-	//fmt.Println("conectado ao mysql...")
-	//dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", "root", "", "localhost", "3306", "orders")
-	//db, err := sql.Open("mysql", dsn)
-	//if err != nil {
-	//	fmt.Println("erro com o mysql!")
-	//	panic(err)
-	//}
-	//fmt.Println("conexao com mysql foi bem sucedida!")
-	//defer db.Close()
-
-	//db := waitForMySQLConnection(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", "root", "root", "localhost", "3306", "orders"))
 	db, err := sql.Open(configs.DBDriver, configs.DBPath)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	if _, err := os.Stat(configs.DBPath); os.IsNotExist(err) {
+		if _, err := db.Exec(`CREATE TABLE IF NOT EXISTS orders (
+    			id varchar(255) NOT NULL, 
+    			price float NOT NULL, 
+    			tax float NOT NULL, 
+    			final_price float NOT NULL, 
+    			PRIMARY KEY (id)
+    		)`); err != nil {
+			panic(err)
+		}
+	}
+
+	var count int
+	err = db.QueryRow("SELECT COUNT(*) FROM orders").Scan(&count)
+	if err != nil {
+		panic(err)
+	}
+
+	if count == 0 {
+		_, err = db.Exec(`INSERT INTO orders (id, price, tax, final_price) VALUES
+			('1', 100.0, 10.0, 110.0),
+			('2', 200.0, 20.0, 220.0)`)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("Registros iniciais inseridos na tabela orders.")
+	}
 
 	rabbitMQChannel := getRabbitMQChannel()
 
