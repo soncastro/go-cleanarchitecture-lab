@@ -15,7 +15,7 @@ type OrderService struct {
 
 func NewOrderService(createOrderUseCase usecase.CreateOrderUseCase, getAllOrdersUseCase usecase.GetAllOrdersUseCase) *OrderService {
 	return &OrderService{
-		CreateOrderUseCase:  createOrderUseCase,
+		//CreateOrderUseCase:  createOrderUseCase,
 		GetAllOrdersUseCase: getAllOrdersUseCase,
 	}
 }
