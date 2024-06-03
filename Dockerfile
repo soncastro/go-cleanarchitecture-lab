@@ -10,6 +10,8 @@ WORKDIR /app
 # Copy go mod and sum files
 COPY go.mod go.sum ./
 
+#RUN go mod download
+
 # Copy the vendor directory
 COPY vendor/ ./vendor/
 
@@ -20,9 +22,6 @@ COPY . .
 COPY wait-for-it.sh /wait-for-it.sh
 RUN chmod +x /wait-for-it.sh
 
-COPY init-mysql.sh /init-mysql.sh
-RUN chmod +x /init-mysql.sh
-
 # Set the Current Working Directory inside the container to cmd/ordersystem
 WORKDIR /app/cmd/ordersystem
 
@@ -32,4 +31,6 @@ EXPOSE 8000
 EXPOSE 50051
 
 # Command to run the executable with wait-for-it script
-CMD ["/wait-for-it.sh", "rabbitmq:5672", "--", "/init-mysql.sh", "&&", "go", "run", "-mod=vendor", "main.go", "wire_gen.go"]
+
+# Command to run the executable
+CMD ["go", "run", "-mod=vendor", "main.go", "wire_gen.go"]

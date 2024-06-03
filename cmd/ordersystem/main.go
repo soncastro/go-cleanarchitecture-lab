@@ -4,16 +4,10 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"log"
-	"net"
-	"net/http"
-	"os"
-	"strconv"
-	"time"
-
 	graphql_handler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/mux"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/songomes/desafiocleanarchitecture/configs"
 	"github.com/songomes/desafiocleanarchitecture/graph"
 	"github.com/songomes/desafiocleanarchitecture/internal/event/handler"
@@ -23,9 +17,10 @@ import (
 	"github.com/streadway/amqp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-
-	// mysql
-	_ "github.com/go-sql-driver/mysql"
+	"net"
+	"net/http"
+	"strconv"
+	"time"
 )
 
 type HandlerMain struct {
@@ -50,7 +45,8 @@ func main() {
 	//fmt.Println("conexao com mysql foi bem sucedida!")
 	//defer db.Close()
 
-	db := waitForMySQLConnection(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", "root", "root", "localhost", "3306", "orders"))
+	//db := waitForMySQLConnection(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", "root", "root", "localhost", "3306", "orders"))
+	db, err := sql.Open(configs.DBDriver, configs.DBPath)
 
 	rabbitMQChannel := getRabbitMQChannel()
 
@@ -106,15 +102,17 @@ func main() {
 }
 
 func getRabbitMQChannel() *amqp.Channel {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-	if err != nil {
-		panic(err)
+	for {
+		conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
+		if err == nil {
+			ch, err := conn.Channel()
+			if err == nil {
+				return ch
+			}
+		}
+		fmt.Println("RabbitMQ não está pronto, tentando novamente em 5 segundos...")
+		time.Sleep(5 * time.Second)
 	}
-	ch, err := conn.Channel()
-	if err != nil {
-		panic(err)
-	}
-	return ch
 }
 
 func (h *HandlerMain) ListOrdersREST(w http.ResponseWriter, r *http.Request) {
@@ -145,25 +143,26 @@ func (h *HandlerMain) ListOrdersREST(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func waitForMySQLConnection(dsn string) *sql.DB {
-	var db *sql.DB
-	var err error
-
-	for {
-		db, err = sql.Open("mysql", dsn)
-		if err == nil {
-			err = db.Ping()
-			if err == nil {
-				log.SetOutput(os.Stdout)
-				log.Println("Successfully connected to MySQL")
-				fmt.Println("Successfully connected to MySQL")
-				return db
-			}
-		}
-
-		log.SetOutput(os.Stderr)
-		log.Println("Failed to connect to MySQL, retrying in 5 seconds...")
-		fmt.Println("Failed to connect to MySQL, retrying in 5 seconds...")
-		time.Sleep(5 * time.Second)
-	}
-}
+//
+//func waitForMySQLConnection(dsn string) *sql.DB {
+//	var db *sql.DB
+//	var err error
+//
+//	for {
+//		db, err = sql.Open("mysql", dsn)
+//		if err == nil {
+//			err = db.Ping()
+//			if err == nil {
+//				log.SetOutput(os.Stdout)
+//				log.Println("Successfully connected to MySQL")
+//				fmt.Println("Successfully connected to MySQL")
+//				return db
+//			}
+//		}
+//
+//		log.SetOutput(os.Stderr)
+//		log.Println("Failed to connect to MySQL, retrying in 5 seconds...")
+//		fmt.Println("Failed to connect to MySQL, retrying in 5 seconds...")
+//		time.Sleep(5 * time.Second)
+//	}
+//}
