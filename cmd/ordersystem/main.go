@@ -11,9 +11,9 @@ import (
 	"github.com/songomes/desafiocleanarchitecture/configs"
 	"github.com/songomes/desafiocleanarchitecture/graph"
 	"github.com/songomes/desafiocleanarchitecture/internal/event/handler"
-	"github.com/songomes/desafiocleanarchitecture/internal/infra/grpc/pb"
 	"github.com/songomes/desafiocleanarchitecture/internal/infra/grpc/service"
 	"github.com/songomes/desafiocleanarchitecture/internal/infra/web/webserver"
+	"github.com/songomes/desafiocleanarchitecture/internal/pb"
 	"github.com/songomes/desafiocleanarchitecture/pkg/events"
 	"github.com/streadway/amqp"
 	"google.golang.org/grpc"
@@ -57,10 +57,8 @@ func main() {
 	go webserver.Start()
 
 	grpcServer := grpc.NewServer()
-	createOrderService := service.NewOrderService(*createOrderUseCase)
-	// TODO usar posteriormente
-	//getAllOrdersService := service.NewOrderService(*getAllOrdersUseCase)
-	pb.RegisterOrderServiceServer(grpcServer, createOrderService)
+	orderService := service.NewOrderService(*createOrderUseCase, *getAllOrdersUseCase)
+	pb.RegisterOrderServiceServer(grpcServer, orderService)
 	reflection.Register(grpcServer)
 
 	fmt.Println("Starting gRPC server on port", configs.GRPCServerPort)

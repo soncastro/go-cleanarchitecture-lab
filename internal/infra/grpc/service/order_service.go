@@ -2,19 +2,21 @@ package service
 
 import (
 	"context"
-
-	"github.com/songomes/desafiocleanarchitecture/internal/infra/grpc/pb"
+	"github.com/songomes/desafiocleanarchitecture/internal/pb"
 	"github.com/songomes/desafiocleanarchitecture/internal/usecase"
+	"strconv"
 )
 
 type OrderService struct {
 	pb.UnimplementedOrderServiceServer
-	CreateOrderUseCase usecase.CreateOrderUseCase
+	CreateOrderUseCase  usecase.CreateOrderUseCase
+	GetAllOrdersUseCase usecase.GetAllOrdersUseCase
 }
 
-func NewOrderService(createOrderUseCase usecase.CreateOrderUseCase) *OrderService {
+func NewOrderService(createOrderUseCase usecase.CreateOrderUseCase, getAllOrdersUseCase usecase.GetAllOrdersUseCase) *OrderService {
 	return &OrderService{
-		CreateOrderUseCase: createOrderUseCase,
+		CreateOrderUseCase:  createOrderUseCase,
+		GetAllOrdersUseCase: getAllOrdersUseCase,
 	}
 }
 
@@ -34,4 +36,27 @@ func (s *OrderService) CreateOrder(ctx context.Context, in *pb.CreateOrderReques
 		Tax:        float32(output.Tax),
 		FinalPrice: float32(output.FinalPrice),
 	}, nil
+}
+
+func (s *OrderService) ListOrders(ctx context.Context, in *pb.Blank) (*pb.OrderList, error) {
+
+	orders, err := s.GetAllOrdersUseCase.Execute()
+	if err != nil {
+		return nil, err
+	}
+
+	var ordersResponse []*pb.Order
+
+	for _, order := range orders {
+		orderResponse := &pb.Order{
+			Id:         order.ID,
+			Price:      strconv.FormatFloat(order.Price, 'f', -1, 64),
+			Tax:        strconv.FormatFloat(order.Tax, 'f', -1, 64),
+			FinalPrice: strconv.FormatFloat(order.FinalPrice, 'f', -1, 64),
+		}
+
+		ordersResponse = append(ordersResponse, orderResponse)
+	}
+
+	return &pb.OrderList{Orders: ordersResponse}, nil
 }
