@@ -2,7 +2,7 @@
 
 ## Criação de usecase de listagem das orders
 
-### A listagem das orders foi disponibilizadas por três tipos de serviços:
+### A listagem das orders foi disponibilizada por três tipos de serviços:
 - Endpoint REST (GET /order)
 - Query ListOrders GraphQL
 - Service ListOrders com gRPC
